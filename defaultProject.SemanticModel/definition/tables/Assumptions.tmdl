@@ -1,0 +1,107 @@
+table Assumptions
+	lineageTag: assumptions-0001
+
+	column AssumptionKey
+		dataType: int64
+		formatString: 0
+		lineageTag: assumptions-col-key
+		summarizeBy: none
+		sourceColumn: AssumptionKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column LoadedHourlyCost
+		dataType: double
+		formatString: "R"#,0.00
+		lineageTag: assumptions-col-hourly
+		summarizeBy: sum
+		sourceColumn: LoadedHourlyCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column HoursPerFTEMonth
+		dataType: double
+		formatString: #,0
+		lineageTag: assumptions-col-fte
+		summarizeBy: sum
+		sourceColumn: HoursPerFTEMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column CapacityConversionPct
+		dataType: double
+		formatString: 0.0%
+		lineageTag: assumptions-col-conv
+		summarizeBy: sum
+		sourceColumn: CapacityConversionPct
+
+		annotation SummarizationSetBy = Automatic
+
+	column DefectRemediationCost
+		dataType: double
+		formatString: "R"#,0.00
+		lineageTag: assumptions-col-defect
+		summarizeBy: sum
+		sourceColumn: DefectRemediationCost
+
+		annotation SummarizationSetBy = Automatic
+
+	column LicenceCostPerSeatMonth
+		dataType: double
+		formatString: "R"#,0.00
+		lineageTag: assumptions-col-lic
+		summarizeBy: sum
+		sourceColumn: LicenceCostPerSeatMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column EnablementCostMonth
+		dataType: double
+		formatString: "R"#,0.00
+		lineageTag: assumptions-col-enable
+		summarizeBy: sum
+		sourceColumn: EnablementCostMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column AICreditCostPerUnit
+		dataType: double
+		formatString: "R"#,0.00
+		lineageTag: assumptions-col-credit
+		summarizeBy: sum
+		sourceColumn: AICreditCostPerUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column MinutesSavedPerAcceptedSuggestion
+		dataType: double
+		formatString: 0.00
+		lineageTag: assumptions-col-minsaved
+		summarizeBy: sum
+		sourceColumn: MinutesSavedPerAcceptedSuggestion
+
+		annotation SummarizationSetBy = Automatic
+
+	column Scenario
+		dataType: string
+		lineageTag: assumptions-col-scenario
+		summarizeBy: none
+		sourceColumn: Scenario
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Assumptions = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [AssumptionKey = Int64.Type, Scenario = text, LoadedHourlyCost = Double.Type, HoursPerFTEMonth = Double.Type, CapacityConversionPct = Double.Type, DefectRemediationCost = Double.Type, LicenceCostPerSeatMonth = Double.Type, EnablementCostMonth = Double.Type, AICreditCostPerUnit = Double.Type, MinutesSavedPerAcceptedSuggestion = Double.Type],
+						{
+							{1, "Expected", 850.00, 160, 0.60, 12500.00, 350.00, 45000.00, 0.15, 0.8}
+						}
+					)
+				in
+					Source
+
+	annotation PBI_ResultType = Table
+

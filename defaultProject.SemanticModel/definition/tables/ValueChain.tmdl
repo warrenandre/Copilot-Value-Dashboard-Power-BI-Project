@@ -1,0 +1,40 @@
+table ValueChain
+	lineageTag: valuechain-tbl-0001
+
+	column StepOrder
+		dataType: int64
+		formatString: 0
+		lineageTag: vc-col-order
+		summarizeBy: none
+		sourceColumn: StepOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	column StepName
+		dataType: string
+		lineageTag: vc-col-name
+		summarizeBy: none
+		sourceColumn: StepName
+		sortByColumn: StepOrder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ValueChain = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [StepOrder = Int64.Type, StepName = text],
+						{
+							{1, "Eligible Developers"},
+							{2, "Assigned Seats"},
+							{3, "Active Users"},
+							{4, "Engaged Users"},
+							{5, "Sustained Users"}
+						}
+					)
+				in
+					Source
+
+	annotation PBI_ResultType = Table
+

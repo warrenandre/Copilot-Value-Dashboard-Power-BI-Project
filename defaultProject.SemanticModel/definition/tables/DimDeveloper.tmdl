@@ -1,0 +1,164 @@
+table DimDeveloper
+	lineageTag: dim-dev-0001
+
+	column DeveloperKey
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-dev-col-key
+		summarizeBy: count
+		sourceColumn: DeveloperKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column DeveloperName
+		dataType: string
+		lineageTag: dim-dev-col-name
+		summarizeBy: none
+		sourceColumn: DeveloperName
+
+		annotation SummarizationSetBy = Automatic
+
+	column TeamKey
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-dev-col-team
+		summarizeBy: none
+		sourceColumn: TeamKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column AssignedDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dim-dev-col-assigned
+		summarizeBy: none
+		sourceColumn: AssignedDate
+
+		variation Variation
+			isDefault
+			relationship: 78bce561-c0f5-4f75-a415-b85af2d0aae2
+			defaultHierarchy: LocalDateTable_40998e37-3cf9-4cf2-8c70-5a622997769d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column FirstUseDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dim-dev-col-firstuse
+		summarizeBy: none
+		sourceColumn: FirstUseDate
+
+		variation Variation
+			isDefault
+			relationship: 5670a503-b5b6-43d6-be2f-036e44bf8839
+			defaultHierarchy: LocalDateTable_d90e560a-3208-4864-a5d7-9e50a8ed58b5.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LastActiveDate
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dim-dev-col-lastactive
+		summarizeBy: none
+		sourceColumn: LastActiveDate
+
+		variation Variation
+			isDefault
+			relationship: 408c90a4-7930-4dd4-965b-c9ac2eefa134
+			defaultHierarchy: LocalDateTable_a72f939e-d948-4aa6-ae32-e41a470e53dd.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DaysToFirstUse
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-dev-col-daystofirst
+		summarizeBy: sum
+		sourceColumn: DaysToFirstUse
+
+		annotation SummarizationSetBy = Automatic
+
+	column CohortMonth
+		dataType: string
+		lineageTag: dim-dev-col-cohort
+		summarizeBy: none
+		sourceColumn: CohortMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsActivated
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-dev-col-activated
+		summarizeBy: sum
+		sourceColumn: IsActivated
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsSustained
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-dev-col-sustained
+		summarizeBy: sum
+		sourceColumn: IsSustained
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalActiveWeeks
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-dev-col-actweeks
+		summarizeBy: sum
+		sourceColumn: TotalActiveWeeks
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDeveloper = m
+		mode: import
+		source =
+				let
+					// 8 teams, 15 developers each = 120 developers total
+					TeamCount = 8,
+					DevPerTeam = 15,
+					TotalDevs = TeamCount * DevPerTeam,
+					Base = List.Generate(
+						() => 0,
+						each _ < TotalDevs,
+						each _ + 1
+					),
+					Rows = List.Transform(Base, (i) =>
+						let
+							devKey = i + 1,
+							teamKey = Number.Mod(i, TeamCount) + 1,
+							// Assignment date: staggered from early March through mid-April
+							assignedDayOffset = Number.Mod(i * 7 + teamKey * 3, 45),
+							assignedDate = Date.AddDays(#date(2026, 3, 1), assignedDayOffset),
+							// ~85% activate; days-to-first-use varies
+							activationSeed = Number.Mod(i * 13 + teamKey * 5, 100),
+							isActivated = if activationSeed < 85 then 1 else 0,
+							daysToFirstUse = if isActivated = 1 then Number.Mod(i * 3 + teamKey, 14) + 1 else 0,
+							firstUseDate = if isActivated = 1 then Date.AddDays(assignedDate, daysToFirstUse) else null,
+							// ~68% sustained (active >= 3 weeks)
+							sustainedSeed = Number.Mod(i * 17 + teamKey * 7, 100),
+							isSustained = if isActivated = 1 and sustainedSeed < 80 then 1 else 0,
+							totalActiveWeeks = if isSustained = 1 then 8 + Number.Mod(i * 11, 12) else if isActivated = 1 then Number.Mod(i * 5, 3) else 0,
+							lastActiveDayOffset = if isActivated = 1 then daysToFirstUse + (totalActiveWeeks * 7) else 0,
+							lastActiveDate = if isActivated = 1 then Date.AddDays(assignedDate, lastActiveDayOffset) else null,
+							cohortMonth = Date.ToText(assignedDate, "yyyy-MM"),
+							devName = "Developer " & Text.PadStart(Text.From(devKey), 3, "0")
+						in
+							[DeveloperKey = devKey, DeveloperName = devName, TeamKey = teamKey, AssignedDate = assignedDate, FirstUseDate = firstUseDate, LastActiveDate = lastActiveDate, DaysToFirstUse = daysToFirstUse, CohortMonth = cohortMonth, IsActivated = isActivated, IsSustained = isSustained, TotalActiveWeeks = totalActiveWeeks]
+					),
+					Result = Table.FromRecords(Rows),
+					Typed = Table.TransformColumnTypes(Result, {{"DeveloperKey", Int64.Type}, {"DeveloperName", type text}, {"TeamKey", Int64.Type}, {"AssignedDate", type date}, {"FirstUseDate", type nullable date}, {"LastActiveDate", type nullable date}, {"DaysToFirstUse", Int64.Type}, {"CohortMonth", type text}, {"IsActivated", Int64.Type}, {"IsSustained", Int64.Type}, {"TotalActiveWeeks", Int64.Type}})
+				in
+					Typed
+
+	annotation PBI_ResultType = Table
+

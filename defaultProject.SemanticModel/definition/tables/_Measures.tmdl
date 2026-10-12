@@ -1,0 +1,348 @@
+table _Measures
+	lineageTag: measures-tbl-0001
+
+	/// Count of eligible developers across the selected business units / teams
+	measure 'Eligible Developers' = SUM ( DimBusinessUnit[EligibleDevelopers] )
+		formatString: #,0
+		lineageTag: m-eligible-devs
+
+	/// Total developers with an assigned Copilot seat in the selected scope
+	measure 'Assigned Seats' = COUNTROWS ( DimDeveloper )
+		formatString: #,0
+		lineageTag: m-assigned-seats
+
+	/// Developers who have ever activated their seat (had at least one usage day)
+	measure 'Activated Users' = CALCULATE ( COUNTROWS ( DimDeveloper ), DimDeveloper[IsActivated] = 1 )
+		formatString: #,0
+		lineageTag: m-activated
+
+	/// Distinct developers active in the selected period (proxy from FactTeamDaily aggregate)
+	measure 'Active Users' =
+			VAR __maxByTeam =
+				ADDCOLUMNS (
+					VALUES ( DimBusinessUnit[TeamKey] ),
+					"@peak", CALCULATE ( MAX ( FactTeamDaily[ActiveUsers] ) )
+				)
+			RETURN
+				SUMX ( __maxByTeam, [@peak] )
+		formatString: #,0
+		lineageTag: m-active-users
+
+	/// Weekly active users (peak in period across selected teams)
+	measure 'Weekly Active Users' =
+			VAR __maxByTeam =
+				ADDCOLUMNS (
+					VALUES ( DimBusinessUnit[TeamKey] ),
+					"@peak", CALCULATE ( MAX ( FactTeamDaily[WeeklyActiveUsers] ) )
+				)
+			RETURN
+				SUMX ( __maxByTeam, [@peak] )
+		formatString: #,0
+		lineageTag: m-wau
+
+	/// Sustained users: active in >= 3 weeks in period
+	measure 'Sustained Users' = CALCULATE ( COUNTROWS ( DimDeveloper ), DimDeveloper[IsSustained] = 1 )
+		formatString: #,0
+		lineageTag: m-sustained
+
+	/// Engaged users: peak engaged users across teams in period
+	measure 'Engaged Users' =
+			VAR __t =
+				ADDCOLUMNS (
+					VALUES ( DimBusinessUnit[TeamKey] ),
+					"@peak", CALCULATE ( MAX ( FactTeamDaily[EngagedUsers] ) )
+				)
+			RETURN
+				SUMX ( __t, [@peak] )
+		formatString: #,0
+		lineageTag: m-engaged
+
+	/// Adoption rate = Active Users / Assigned Seats
+	measure 'Adoption Rate' = DIVIDE ( [Active Users], [Assigned Seats] )
+		formatString: 0.0%
+		lineageTag: m-adoption-rate
+
+	/// Activation rate = Activated / Assigned
+	measure 'Activation Rate' = DIVIDE ( [Activated Users], [Assigned Seats] )
+		formatString: 0.0%
+		lineageTag: m-activation-rate
+
+	/// Sustained usage % = Sustained / Active
+	measure 'Sustained Usage %' = DIVIDE ( [Sustained Users], [Active Users] )
+		formatString: 0.0%
+		lineageTag: m-sustained-pct
+
+	/// Inactive seats = Assigned - Active
+	measure 'Inactive Seats' = [Assigned Seats] - [Active Users]
+		formatString: #,0
+		lineageTag: m-inactive
+
+	/// Time to first use (avg days)
+	measure 'Avg Days to First Use' = AVERAGEX ( FILTER ( DimDeveloper, DimDeveloper[IsActivated] = 1 ), DimDeveloper[DaysToFirstUse] )
+		formatString: #,0.0
+		lineageTag: m-days-to-first-use
+
+	measure 'Suggestions Made' = SUM ( FactTeamDaily[SuggestionsMade] )
+		formatString: #,0
+		lineageTag: m-sugg-made
+
+	measure 'Suggestions Accepted' = SUM ( FactTeamDaily[SuggestionsAccepted] )
+		formatString: #,0
+		lineageTag: m-sugg-acc
+
+	measure 'Code Acceptance Rate' = DIVIDE ( [Suggestions Accepted], [Suggestions Made] )
+		formatString: 0.0%
+		lineageTag: m-acceptance-rate
+
+	measure 'Lines Accepted' = SUM ( FactTeamDaily[LinesAccepted] )
+		formatString: #,0
+		lineageTag: m-lines-acc
+
+	measure 'Chat Sessions' = SUM ( FactTeamDaily[ChatSessions] )
+		formatString: #,0
+		lineageTag: m-chat
+
+	measure 'Agent Sessions' = SUM ( FactTeamDaily[AgentSessions] )
+		formatString: #,0
+		lineageTag: m-agent
+
+	measure 'Coding Agent PRs Created' = SUM ( FactTeamDaily[CodingAgentPRsCreated] )
+		formatString: #,0
+		lineageTag: m-caprc
+
+	measure 'Coding Agent PRs Merged' = SUM ( FactTeamDaily[CodingAgentPRsMerged] )
+		formatString: #,0
+		lineageTag: m-caprm
+
+	measure 'AI Credits Consumed' = SUM ( FactTeamDaily[AICreditsConsumed] )
+		formatString: #,0.0
+		lineageTag: m-credits
+
+	measure 'PRs Merged' = SUM ( FactTeamDaily[PRsMerged] )
+		formatString: #,0
+		lineageTag: m-prs-merged
+
+	measure 'Median PR Cycle Time (hrs)' =
+			MEDIANX (
+				FILTER ( FactTeamDaily, FactTeamDaily[PRsMerged] > 0 ),
+				FactTeamDaily[PRCycleTimeHours]
+			)
+		formatString: #,0.0
+		lineageTag: m-cycle-time
+
+	measure 'Avg Time to First Review (hrs)' =
+			AVERAGEX (
+				FILTER ( FactTeamDaily, FactTeamDaily[PRsMerged] > 0 ),
+				FactTeamDaily[TimeToFirstReviewHours]
+			)
+		formatString: #,0.0
+		lineageTag: m-tfr
+
+	measure 'Avg Lead Time (hrs)' =
+			AVERAGEX (
+				FILTER ( FactTeamDaily, FactTeamDaily[PRsMerged] > 0 ),
+				FactTeamDaily[LeadTimeHours]
+			)
+		formatString: #,0.0
+		lineageTag: m-lead-time
+
+	measure Deployments = SUM ( FactTeamDaily[Deployments] )
+		formatString: #,0
+		lineageTag: m-deploy
+
+	measure 'Failed Deployments' = SUM ( FactTeamDaily[FailedDeployments] )
+		formatString: #,0
+		lineageTag: m-faildep
+
+	measure 'Reworked PRs' = SUM ( FactTeamDaily[ReworkedPRs] )
+		formatString: #,0
+		lineageTag: m-rework
+
+	measure 'Rework Rate' = DIVIDE ( [Reworked PRs], [PRs Merged] )
+		formatString: 0.0%
+		lineageTag: m-rework-rate
+
+	measure 'Throughput per Active Engineer' = DIVIDE ( [PRs Merged], [Active Users] )
+		formatString: #,0.00
+		lineageTag: m-throughput
+
+	measure 'Escaped Defects' = SUM ( FactMonthlyQuality[EscapedDefects] )
+		formatString: #,0
+		lineageTag: m-defects
+
+	measure 'Change Failures' = SUM ( FactMonthlyQuality[ChangeFailures] )
+		formatString: #,0
+		lineageTag: m-cf
+
+	measure 'Total Changes' = SUM ( FactMonthlyQuality[TotalChanges] )
+		formatString: #,0
+		lineageTag: m-tc
+
+	measure 'Change Failure Rate' = DIVIDE ( [Change Failures], [Total Changes] )
+		formatString: 0.0%
+		lineageTag: m-cfr
+
+	measure 'Test Coverage %' = AVERAGE ( FactMonthlyQuality[TestCoveragePct] )
+		formatString: 0.0%
+		lineageTag: m-cov
+
+	measure 'Test Pass Rate' = DIVIDE ( SUM ( FactMonthlyQuality[TestsPassed] ), SUM ( FactMonthlyQuality[TestsRun] ) )
+		formatString: 0.0%
+		lineageTag: m-testpass
+
+	measure 'Build Success Rate' = DIVIDE ( SUM ( FactMonthlyQuality[BuildSuccesses] ), SUM ( FactMonthlyQuality[BuildRuns] ) )
+		formatString: 0.0%
+		lineageTag: m-buildsucc
+
+	measure 'Vulnerabilities Introduced' = SUM ( FactMonthlyQuality[VulnerabilitiesIntroduced] )
+		formatString: #,0
+		lineageTag: m-vuln
+
+	measure 'MTTR (hrs)' = AVERAGE ( FactMonthlyQuality[MTTRHours] )
+		formatString: #,0.0
+		lineageTag: m-mttr
+
+	measure 'Flow State Score' = AVERAGE ( FactMonthlyQuality[FlowStateScore] )
+		formatString: 0.00
+		lineageTag: m-flow
+
+	measure 'Tooling Satisfaction' = AVERAGE ( FactMonthlyQuality[ToolingSatisfaction] )
+		formatString: 0.00
+		lineageTag: m-toolsat
+
+	measure 'Copilot Satisfaction' = AVERAGE ( FactMonthlyQuality[CopilotSatisfaction] )
+		formatString: 0.00
+		lineageTag: m-copsat
+
+	measure 'Tech Debt Items' = SUM ( FactMonthlyQuality[TechDebtItems] )
+		formatString: #,0
+		lineageTag: m-debt
+
+	measure 'Licence Cost' =
+			VAR __seats = [Assigned Seats]
+			VAR __months = DISTINCTCOUNT ( DimDate[YearMonth] )
+			VAR __cost = SELECTEDVALUE ( Assumptions[LicenceCostPerSeatMonth], 350 )
+			RETURN __seats * __months * __cost
+		formatString: "R"#,0
+		lineageTag: m-licence-cost
+
+	measure 'AI Credit Cost' = [AI Credits Consumed] * SELECTEDVALUE ( Assumptions[AICreditCostPerUnit], 0.15 )
+		formatString: "R"#,0
+		lineageTag: m-ai-credit-cost
+
+	measure 'Enablement Cost' = DISTINCTCOUNT ( DimDate[YearMonth] ) * SELECTEDVALUE ( Assumptions[EnablementCostMonth], 45000 )
+		formatString: "R"#,0
+		lineageTag: m-enable-cost
+
+	measure 'Copilot Investment' = [Licence Cost] + [AI Credit Cost] + [Enablement Cost]
+		formatString: "R"#,0
+		lineageTag: m-investment
+
+	measure 'Estimated Hours Saved' =
+			VAR __minutes =
+				[Suggestions Accepted] * SELECTEDVALUE ( Assumptions[MinutesSavedPerAcceptedSuggestion], 0.8 )
+			RETURN __minutes / 60
+		formatString: #,0
+		lineageTag: m-hours-saved
+
+	measure 'Capacity Released (FTEs)' =
+			DIVIDE (
+				[Estimated Hours Saved] * SELECTEDVALUE ( Assumptions[CapacityConversionPct], 0.6 ),
+				SELECTEDVALUE ( Assumptions[HoursPerFTEMonth], 160 ) * DISTINCTCOUNT ( DimDate[YearMonth] )
+			)
+		formatString: #,0.00
+		lineageTag: m-capacity
+
+	measure 'Gross Capacity Value' =
+			[Estimated Hours Saved]
+				* SELECTEDVALUE ( Assumptions[CapacityConversionPct], 0.6 )
+				* SELECTEDVALUE ( Assumptions[LoadedHourlyCost], 850 )
+		formatString: "R"#,0
+		lineageTag: m-gross-value
+
+	measure 'Avoided Defect Cost' =
+			VAR __baselineDefectRate = 8
+			VAR __actual = [Escaped Defects]
+			VAR __avoided = MAX ( 0, __baselineDefectRate * DISTINCTCOUNT ( DimBusinessUnit[TeamKey] ) * DISTINCTCOUNT ( FactMonthlyQuality[Date] ) - __actual )
+			RETURN __avoided * SELECTEDVALUE ( Assumptions[DefectRemediationCost], 12500 )
+		formatString: "R"#,0
+		lineageTag: m-avoided-defect
+
+	measure 'Net Value' = [Gross Capacity Value] + [Avoided Defect Cost] - [Copilot Investment]
+		formatString: "R"#,0
+		lineageTag: m-net-value
+
+	measure 'ROI %' = DIVIDE ( [Net Value], [Copilot Investment] )
+		formatString: 0.0%
+		lineageTag: m-roi
+
+	measure 'Benefit-Cost Ratio' = DIVIDE ( [Gross Capacity Value] + [Avoided Defect Cost], [Copilot Investment] )
+		formatString: #,0.00
+		lineageTag: m-bcr
+
+	measure 'Cost per Active User' = DIVIDE ( [Copilot Investment], [Active Users] )
+		formatString: "R"#,0
+		lineageTag: m-cpau
+
+	measure 'Cost per Sustained User' = DIVIDE ( [Copilot Investment], [Sustained Users] )
+		formatString: "R"#,0
+		lineageTag: m-cpsu
+
+	measure 'Cost per Merged PR' = DIVIDE ( [Copilot Investment], [PRs Merged] )
+		formatString: "R"#,0
+		lineageTag: m-cppr
+
+	measure 'Adoption Rate Δ vs Baseline' =
+			VAR __current = [Adoption Rate]
+			VAR __baseline = 0.55
+			RETURN __current - __baseline
+		formatString: +0.0%;-0.0%;0.0%
+		lineageTag: m-adopt-delta
+
+	measure 'PR Cycle Time Δ vs Baseline' =
+			VAR __current = [Median PR Cycle Time (hrs)]
+			VAR __baseline = 42
+			RETURN DIVIDE ( __current - __baseline, __baseline )
+		formatString: +0.0%;-0.0%;0.0%
+		lineageTag: m-cycle-delta
+
+	measure 'Change Failure Rate Δ vs Baseline' =
+			VAR __current = [Change Failure Rate]
+			VAR __baseline = 0.12
+			RETURN __current - __baseline
+		formatString: +0.0%;-0.0%;0.0%
+		lineageTag: m-cfr-delta
+
+	/// Value chain step count — used with ValueChain[StepName]
+	measure 'Value Chain Count' =
+			SWITCH (
+				SELECTEDVALUE ( ValueChain[StepOrder] ),
+				1, [Eligible Developers],
+				2, [Assigned Seats],
+				3, [Active Users],
+				4, [Engaged Users],
+				5, [Sustained Users],
+				BLANK ()
+			)
+		formatString: #,0
+		lineageTag: m-value-chain
+
+	column Placeholder
+		dataType: string
+		isHidden
+		lineageTag: measures-col-placeholder
+		summarizeBy: none
+		sourceColumn: Placeholder
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+					Source = #table(type table [Placeholder = text], {{"_"}})
+				in
+					Source
+
+	annotation PBI_ResultType = Table
+

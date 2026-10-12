@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "v-p2-slicer",
+  "position": {
+    "x": 0,
+    "y": 70,
+    "z": 1000,
+    "height": 55,
+    "width": 940,
+    "tabOrder": 1000
+  },
+  "visual": {
+    "visualType": "slicer",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimBusinessUnit"
+                    }
+                  },
+                  "Property": "BusinessUnit"
+                }
+              },
+              "queryRef": "DimBusinessUnit.BusinessUnit",
+              "nativeQueryRef": "DimBusinessUnit.BusinessUnit",
+              "active": true
+            }
+          ]
+        }
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

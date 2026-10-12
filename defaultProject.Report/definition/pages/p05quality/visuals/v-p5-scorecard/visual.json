@@ -1,0 +1,186 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "v-p5-scorecard",
+  "position": {
+    "x": 0,
+    "y": 650,
+    "z": 8000,
+    "height": 420,
+    "width": 1920,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimBusinessUnit"
+                    }
+                  },
+                  "Property": "BusinessUnit"
+                }
+              },
+              "queryRef": "DimBusinessUnit.BusinessUnit",
+              "nativeQueryRef": "DimBusinessUnit.BusinessUnit"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimBusinessUnit"
+                    }
+                  },
+                  "Property": "Team"
+                }
+              },
+              "queryRef": "DimBusinessUnit.Team",
+              "nativeQueryRef": "DimBusinessUnit.Team"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Escaped Defects"
+                }
+              },
+              "queryRef": "_Measures.Escaped Defects",
+              "nativeQueryRef": "Escaped Defects"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Change Failure Rate"
+                }
+              },
+              "queryRef": "_Measures.Change Failure Rate",
+              "nativeQueryRef": "Change Failure Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Test Coverage %"
+                }
+              },
+              "queryRef": "_Measures.Test Coverage %",
+              "nativeQueryRef": "Test Coverage %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Test Pass Rate"
+                }
+              },
+              "queryRef": "_Measures.Test Pass Rate",
+              "nativeQueryRef": "Test Pass Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Build Success Rate"
+                }
+              },
+              "queryRef": "_Measures.Build Success Rate",
+              "nativeQueryRef": "Build Success Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Vulnerabilities Introduced"
+                }
+              },
+              "queryRef": "_Measures.Vulnerabilities Introduced",
+              "nativeQueryRef": "Vulnerabilities Introduced"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "MTTR (hrs)"
+                }
+              },
+              "queryRef": "_Measures.MTTR (hrs)",
+              "nativeQueryRef": "MTTR (hrs)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Tech Debt Items"
+                }
+              },
+              "queryRef": "_Measures.Tech Debt Items",
+              "nativeQueryRef": "Tech Debt Items"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "section": {
+              "expr": {
+                "Literal": {
+                  "Value": "'pt-escaped-defects'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

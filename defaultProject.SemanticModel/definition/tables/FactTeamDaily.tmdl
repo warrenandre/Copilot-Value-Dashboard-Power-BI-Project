@@ -1,0 +1,262 @@
+table FactTeamDaily
+	lineageTag: fact-team-0001
+
+	column Date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: fact-team-col-date
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TeamKey
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-team
+		summarizeBy: none
+		sourceColumn: TeamKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActiveUsers
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-active
+		summarizeBy: sum
+		sourceColumn: ActiveUsers
+
+		annotation SummarizationSetBy = Automatic
+
+	column EngagedUsers
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-engaged
+		summarizeBy: sum
+		sourceColumn: EngagedUsers
+
+		annotation SummarizationSetBy = Automatic
+
+	column WeeklyActiveUsers
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-wau
+		summarizeBy: sum
+		sourceColumn: WeeklyActiveUsers
+
+		annotation SummarizationSetBy = Automatic
+
+	column SuggestionsMade
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-sugg
+		summarizeBy: sum
+		sourceColumn: SuggestionsMade
+
+		annotation SummarizationSetBy = Automatic
+
+	column SuggestionsAccepted
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-suggacc
+		summarizeBy: sum
+		sourceColumn: SuggestionsAccepted
+
+		annotation SummarizationSetBy = Automatic
+
+	column LinesAccepted
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-lines
+		summarizeBy: sum
+		sourceColumn: LinesAccepted
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChatSessions
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-chat
+		summarizeBy: sum
+		sourceColumn: ChatSessions
+
+		annotation SummarizationSetBy = Automatic
+
+	column AgentSessions
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-agent
+		summarizeBy: sum
+		sourceColumn: AgentSessions
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodingAgentPRsCreated
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-caprc
+		summarizeBy: sum
+		sourceColumn: CodingAgentPRsCreated
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodingAgentPRsMerged
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-caprm
+		summarizeBy: sum
+		sourceColumn: CodingAgentPRsMerged
+
+		annotation SummarizationSetBy = Automatic
+
+	column AICreditsConsumed
+		dataType: double
+		formatString: #,0.00
+		lineageTag: fact-team-col-cred
+		summarizeBy: sum
+		sourceColumn: AICreditsConsumed
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRsMerged
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-prsm
+		summarizeBy: sum
+		sourceColumn: PRsMerged
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRCycleTimeHours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: fact-team-col-cycle
+		summarizeBy: average
+		sourceColumn: PRCycleTimeHours
+
+		annotation SummarizationSetBy = Automatic
+
+	column TimeToFirstReviewHours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: fact-team-col-tfr
+		summarizeBy: average
+		sourceColumn: TimeToFirstReviewHours
+
+		annotation SummarizationSetBy = Automatic
+
+	column LeadTimeHours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: fact-team-col-lead
+		summarizeBy: average
+		sourceColumn: LeadTimeHours
+
+		annotation SummarizationSetBy = Automatic
+
+	column Deployments
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-deploy
+		summarizeBy: sum
+		sourceColumn: Deployments
+
+		annotation SummarizationSetBy = Automatic
+
+	column FailedDeployments
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-faildep
+		summarizeBy: sum
+		sourceColumn: FailedDeployments
+
+		annotation SummarizationSetBy = Automatic
+
+	column ReworkedPRs
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-team-col-rework
+		summarizeBy: sum
+		sourceColumn: ReworkedPRs
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactTeamDaily = m
+		mode: import
+		source =
+				let
+					StartDate = #date(2026, 3, 1),
+					EndDate = #date(2026, 9, 27),
+					TotalDays = Duration.Days(EndDate - StartDate) + 1,
+					TeamCount = 8,
+					// Base team profiles: (baseActive, adoptionGrowthRate, baseCycleTime, baseDefects, baseChatMult)
+					// Digital Channels teams are the reference "high performers"
+					TeamProfiles = {
+						{15, 0.55, 32, 4.5, 1.4}, // 1 Mobile Banking (strong)
+						{14, 0.50, 34, 4.8, 1.3}, // 2 Web Portal (strong)
+						{16, 0.42, 44, 5.5, 1.1}, // 3 Card Services (Payments - lagging quality)
+						{13, 0.40, 46, 5.8, 1.0}, // 4 Real-Time Payments (Payments - lagging)
+						{11, 0.45, 38, 5.0, 1.1}, // 5 Trade Finance
+						{10, 0.42, 40, 5.2, 1.0}, // 6 Treasury Systems
+						{14, 0.60, 30, 4.2, 1.5}, // 7 Data Platform (strong)
+						{12, 0.58, 32, 4.4, 1.4}  // 8 ML Engineering (strong)
+					},
+					Rows = List.Generate(
+						() => 0,
+						each _ < TotalDays * TeamCount,
+						each _ + 1
+					),
+					BuildRow = (i as number) as record =>
+						let
+							teamIdx = Number.Mod(i, TeamCount),
+							teamKey = teamIdx + 1,
+							dayIdx = Number.RoundDown(i / TeamCount),
+							date = Date.AddDays(StartDate, dayIdx),
+							profile = TeamProfiles{teamIdx},
+							baseActive = profile{0},
+							growthRate = profile{1},
+							baseCycle = profile{2},
+							baseDefects = profile{3},
+							chatMult = profile{4},
+							// Adoption grows over time (S-curve approximation)
+							dayFactor = dayIdx / TotalDays,
+							adoptionGrowth = 1 + growthRate * dayFactor,
+							// Small variation by day
+							dayNoise = 0.85 + Number.Mod(dayIdx * 7 + teamKey * 3, 30) / 100.0,
+							weekendPenalty = if Date.DayOfWeek(date, Day.Monday) >= 5 then 0.35 else 1.0,
+							// Active users
+							activeUsers = Number.Round(baseActive * adoptionGrowth * dayNoise * weekendPenalty, 0),
+							engagedUsers = Number.Round(activeUsers * (0.55 + 0.15 * dayFactor), 0),
+							weeklyActiveUsers = Number.Round(baseActive * (1 + growthRate * dayFactor * 0.8), 0),
+							// Suggestions
+							suggestionsMade = Number.Round(activeUsers * (35 + Number.Mod(i * 13, 15)), 0),
+							acceptanceRate = 0.32 + 0.08 * dayFactor + (Number.Mod(i * 17, 10) / 100.0),
+							suggestionsAccepted = Number.Round(suggestionsMade * acceptanceRate, 0),
+							linesAccepted = Number.Round(suggestionsAccepted * (2.5 + Number.Mod(i, 3)), 0),
+							// Chat & Agent
+							chatSessions = Number.Round(activeUsers * chatMult * (2 + dayFactor * 2), 0),
+							agentSessions = Number.Round(activeUsers * dayFactor * (chatMult * 1.5) * weekendPenalty, 0),
+							codingAgentPRsCreated = if dayIdx < 60 then 0 else Number.Round(activeUsers * (dayFactor - 0.3) * 0.4, 0),
+							codingAgentPRsMerged = Number.Round(codingAgentPRsCreated * 0.65, 0),
+							aiCreditsConsumed = suggestionsAccepted * 0.15 + chatSessions * 0.4 + agentSessions * 1.2 + codingAgentPRsCreated * 3.5,
+							// Delivery
+							prsMerged = Number.Round(activeUsers * (0.35 + 0.15 * dayFactor) * weekendPenalty, 0),
+							cycleTimeReduction = 1 - (dayFactor * 0.25),
+							prCycleTimeHours = baseCycle * cycleTimeReduction * (0.9 + Number.Mod(i * 11, 20) / 100.0),
+							timeToFirstReviewHours = prCycleTimeHours * 0.4,
+							leadTimeHours = prCycleTimeHours * 2.2,
+							deployments = Number.Round(prsMerged * 0.25 * weekendPenalty, 0),
+							failedDeployments = if Number.Mod(i * 23, 100) < (13 - dayFactor * 3) then 1 else 0,
+							reworkedPRs = Number.Round(prsMerged * (0.15 - 0.03 * dayFactor + (if teamKey = 3 or teamKey = 4 then 0.05 else 0)), 0)
+						in
+							[Date = date, TeamKey = teamKey, ActiveUsers = activeUsers, EngagedUsers = engagedUsers, WeeklyActiveUsers = weeklyActiveUsers, SuggestionsMade = suggestionsMade, SuggestionsAccepted = suggestionsAccepted, LinesAccepted = linesAccepted, ChatSessions = chatSessions, AgentSessions = agentSessions, CodingAgentPRsCreated = codingAgentPRsCreated, CodingAgentPRsMerged = codingAgentPRsMerged, AICreditsConsumed = aiCreditsConsumed, PRsMerged = prsMerged, PRCycleTimeHours = prCycleTimeHours, TimeToFirstReviewHours = timeToFirstReviewHours, LeadTimeHours = leadTimeHours, Deployments = deployments, FailedDeployments = failedDeployments, ReworkedPRs = reworkedPRs],
+					Records = List.Transform(Rows, each BuildRow(_)),
+					Result = Table.FromRecords(Records),
+					Typed = Table.TransformColumnTypes(Result, {{"Date", type date}, {"TeamKey", Int64.Type}, {"ActiveUsers", Int64.Type}, {"EngagedUsers", Int64.Type}, {"WeeklyActiveUsers", Int64.Type}, {"SuggestionsMade", Int64.Type}, {"SuggestionsAccepted", Int64.Type}, {"LinesAccepted", Int64.Type}, {"ChatSessions", Int64.Type}, {"AgentSessions", Int64.Type}, {"CodingAgentPRsCreated", Int64.Type}, {"CodingAgentPRsMerged", Int64.Type}, {"AICreditsConsumed", type number}, {"PRsMerged", Int64.Type}, {"PRCycleTimeHours", type number}, {"TimeToFirstReviewHours", type number}, {"LeadTimeHours", type number}, {"Deployments", Int64.Type}, {"FailedDeployments", Int64.Type}, {"ReworkedPRs", Int64.Type}})
+				in
+					Typed
+
+	annotation PBI_ResultType = Table
+

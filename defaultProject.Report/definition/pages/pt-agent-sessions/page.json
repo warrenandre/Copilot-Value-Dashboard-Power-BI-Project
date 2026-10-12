@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "pt-agent-sessions",
+  "displayName": "Tooltip - Agent Sessions",
+  "displayOption": "ActualSize",
+  "height": 220,
+  "width": 420,
+  "pageBinding": {
+    "name": "pt-agent-sessions",
+    "type": "Tooltip",
+    "parameters": []
+  },
+  "objects": {
+    "pageInformation": [
+      {
+        "properties": {
+          "pageInformationType": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip'"
+              }
+            }
+          },
+          "pageInformationName": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip - Agent Sessions'"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode",
+  "type": "Tooltip"
+}

@@ -1,0 +1,113 @@
+table FactFeatureDaily
+	lineageTag: fact-feature-0001
+
+	column Date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: fact-feature-col-date
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TeamKey
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-feature-col-team
+		summarizeBy: none
+		sourceColumn: TeamKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column FeatureKey
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-feature-col-feat
+		summarizeBy: none
+		sourceColumn: FeatureKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column ActiveUsers
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-feature-col-au
+		summarizeBy: sum
+		sourceColumn: ActiveUsers
+
+		annotation SummarizationSetBy = Automatic
+
+	column Interactions
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-feature-col-int
+		summarizeBy: sum
+		sourceColumn: Interactions
+
+		annotation SummarizationSetBy = Automatic
+
+	column AcceptedInteractions
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-feature-col-acc
+		summarizeBy: sum
+		sourceColumn: AcceptedInteractions
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactFeatureDaily = m
+		mode: import
+		source =
+				let
+					StartDate = #date(2026, 3, 1),
+					EndDate = #date(2026, 9, 27),
+					TotalDays = Duration.Days(EndDate - StartDate) + 1,
+					TeamCount = 8,
+					FeatureCount = 7,
+					FeatureProfiles = {
+						{0.95, 0.02, 45, 0.35},
+						{0.60, 0.30, 12, 0.55},
+						{0.35, 0.40, 6,  0.50},
+						{0.15, 0.60, 4,  0.60},
+						{0.08, 0.75, 2,  0.65},
+						{0.20, 0.15, 3,  0.45},
+						{0.25, 0.25, 5,  0.50}
+					},
+					TeamBaseActive = {15, 14, 16, 13, 11, 10, 14, 12},
+					TeamGrowth = {0.55, 0.50, 0.42, 0.40, 0.45, 0.42, 0.60, 0.58},
+					TotalRows = TotalDays * TeamCount * FeatureCount,
+					Base = List.Generate(() => 0, each _ < TotalRows, each _ + 1),
+					Rows = List.Transform(Base, (i) =>
+						let
+							featIdx = Number.Mod(i, FeatureCount),
+							teamIdx = Number.Mod(Number.RoundDown(i / FeatureCount), TeamCount),
+							dayIdx = Number.RoundDown(i / (FeatureCount * TeamCount)),
+							dateVal = Date.AddDays(StartDate, dayIdx),
+							dayFactor = dayIdx / TotalDays,
+							weekendPenalty = if Date.DayOfWeek(dateVal, Day.Monday) >= 5 then 0.35 else 1.0,
+							teamBase = TeamBaseActive{teamIdx},
+							teamGrowth = TeamGrowth{teamIdx},
+							teamActive = Number.Round(teamBase * (1 + teamGrowth * dayFactor) * weekendPenalty, 0),
+							prof = FeatureProfiles{featIdx},
+							featBaseShare = prof{0},
+							featGrowth = prof{1},
+							interactionsPerUser = prof{2},
+							acceptanceRate = prof{3},
+							featShare = List.Min({1.0, featBaseShare + featGrowth * dayFactor}),
+							featActive = Number.Round(teamActive * featShare, 0),
+							interactions = Number.Round(featActive * interactionsPerUser * (0.9 + Number.Mod(i * 7, 20) / 100.0), 0),
+							accepted = Number.Round(interactions * acceptanceRate, 0)
+						in
+							[Date = dateVal, TeamKey = teamIdx + 1, FeatureKey = featIdx + 1, ActiveUsers = featActive, Interactions = interactions, AcceptedInteractions = accepted]
+					),
+					Result = Table.FromRecords(Rows),
+					Typed = Table.TransformColumnTypes(Result, {{"Date", type date}, {"TeamKey", Int64.Type}, {"FeatureKey", Int64.Type}, {"ActiveUsers", Int64.Type}, {"Interactions", Int64.Type}, {"AcceptedInteractions", Int64.Type}})
+				in
+					Typed
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

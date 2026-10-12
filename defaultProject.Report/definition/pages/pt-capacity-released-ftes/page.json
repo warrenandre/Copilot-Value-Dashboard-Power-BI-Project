@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "pt-capacity-released-ftes",
+  "displayName": "Tooltip - Capacity Released (FTEs)",
+  "displayOption": "ActualSize",
+  "height": 220,
+  "width": 420,
+  "pageBinding": {
+    "name": "pt-capacity-released-ftes",
+    "type": "Tooltip",
+    "parameters": []
+  },
+  "objects": {
+    "pageInformation": [
+      {
+        "properties": {
+          "pageInformationType": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip'"
+              }
+            }
+          },
+          "pageInformationName": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip - Capacity Released (FTEs)'"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode",
+  "type": "Tooltip"
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "pt-escaped-defects",
+  "displayName": "Tooltip - Escaped Defects",
+  "displayOption": "ActualSize",
+  "height": 220,
+  "width": 420,
+  "pageBinding": {
+    "name": "pt-escaped-defects",
+    "type": "Tooltip",
+    "parameters": []
+  },
+  "objects": {
+    "pageInformation": [
+      {
+        "properties": {
+          "pageInformationType": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip'"
+              }
+            }
+          },
+          "pageInformationName": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip - Escaped Defects'"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode",
+  "type": "Tooltip"
+}

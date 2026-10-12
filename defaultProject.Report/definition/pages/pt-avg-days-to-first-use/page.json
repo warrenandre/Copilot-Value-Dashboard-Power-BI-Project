@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "pt-avg-days-to-first-use",
+  "displayName": "Tooltip - Avg Days to First Use",
+  "displayOption": "ActualSize",
+  "height": 220,
+  "width": 420,
+  "pageBinding": {
+    "name": "pt-avg-days-to-first-use",
+    "type": "Tooltip",
+    "parameters": []
+  },
+  "objects": {
+    "pageInformation": [
+      {
+        "properties": {
+          "pageInformationType": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip'"
+              }
+            }
+          },
+          "pageInformationName": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip - Avg Days to First Use'"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode",
+  "type": "Tooltip"
+}

@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/page/2.1.0/schema.json",
+  "name": "pt-adoption-rate",
+  "displayName": "Tooltip - Adoption Rate",
+  "displayOption": "ActualSize",
+  "height": 220,
+  "width": 420,
+  "pageBinding": {
+    "name": "pt-adoption-rate",
+    "type": "Tooltip",
+    "parameters": []
+  },
+  "objects": {
+    "pageInformation": [
+      {
+        "properties": {
+          "pageInformationType": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip'"
+              }
+            }
+          },
+          "pageInformationName": {
+            "expr": {
+              "Literal": {
+                "Value": "'Tooltip - Adoption Rate'"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "visibility": "HiddenInViewMode",
+  "type": "Tooltip"
+}

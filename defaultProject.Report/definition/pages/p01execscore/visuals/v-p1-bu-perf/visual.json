@@ -1,0 +1,144 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "v-p1-bu-perf",
+  "position": {
+    "x": 0,
+    "y": 790,
+    "z": 16000,
+    "height": 280,
+    "width": 1250,
+    "tabOrder": 16000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimBusinessUnit"
+                    }
+                  },
+                  "Property": "BusinessUnit"
+                }
+              },
+              "queryRef": "DimBusinessUnit.BusinessUnit",
+              "nativeQueryRef": "DimBusinessUnit.BusinessUnit"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimBusinessUnit"
+                    }
+                  },
+                  "Property": "Team"
+                }
+              },
+              "queryRef": "DimBusinessUnit.Team",
+              "nativeQueryRef": "DimBusinessUnit.Team"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Adoption Rate"
+                }
+              },
+              "queryRef": "_Measures.Adoption Rate",
+              "nativeQueryRef": "Adoption Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Sustained Usage %"
+                }
+              },
+              "queryRef": "_Measures.Sustained Usage %",
+              "nativeQueryRef": "Sustained Usage %"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Median PR Cycle Time (hrs)"
+                }
+              },
+              "queryRef": "_Measures.Median PR Cycle Time (hrs)",
+              "nativeQueryRef": "Median PR Cycle Time (hrs)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Change Failure Rate"
+                }
+              },
+              "queryRef": "_Measures.Change Failure Rate",
+              "nativeQueryRef": "Change Failure Rate"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Net Value"
+                }
+              },
+              "queryRef": "_Measures.Net Value",
+              "nativeQueryRef": "Net Value"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "section": {
+              "expr": {
+                "Literal": {
+                  "Value": "'pt-adoption-rate'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

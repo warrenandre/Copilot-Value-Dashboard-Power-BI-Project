@@ -1,0 +1,34 @@
+model Model
+	culture: en-ZA
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-ZA
+	valueFilterBehavior: independent
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+annotation PBI_QueryOrder = ["DimDate","DimBusinessUnit","DimDeveloper","DimFeature","Assumptions","FactTeamDaily","FactFeatureDaily","FactMonthlyQuality","_Measures","ValueChain"]
+
+ref table DimDate
+ref table DimBusinessUnit
+ref table DimDeveloper
+ref table DimFeature
+ref table Assumptions
+ref table FactTeamDaily
+ref table FactFeatureDaily
+ref table FactMonthlyQuality
+ref table _Measures
+ref table ValueChain
+ref table DateTableTemplate_0c436a7e-57dd-48ba-8c3c-0af425a5fbde
+ref table LocalDateTable_8fcede65-f71a-4768-b283-db9014dc3195
+ref table LocalDateTable_ecb2bab6-976a-4d36-9d48-bfa401ed98c1
+ref table LocalDateTable_40998e37-3cf9-4cf2-8c70-5a622997769d
+ref table LocalDateTable_d90e560a-3208-4864-a5d7-9e50a8ed58b5
+ref table LocalDateTable_a72f939e-d948-4aa6-ae32-e41a470e53dd
+
+ref cultureInfo en-ZA
+

@@ -1,0 +1,131 @@
+table DimDate
+	lineageTag: dim-date-0001
+
+	column Date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dim-date-col-date
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: 9e95ee44-fbfe-431c-bddc-11b4636d5f6f
+			defaultHierarchy: LocalDateTable_8fcede65-f71a-4768-b283-db9014dc3195.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-date-col-year
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthNumber
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-date-col-monthnumber
+		summarizeBy: sum
+		sourceColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthName
+		dataType: string
+		lineageTag: dim-date-col-monthname
+		summarizeBy: none
+		sourceColumn: MonthName
+		sortByColumn: MonthNumber
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonth
+		dataType: string
+		lineageTag: dim-date-col-yearmonth
+		summarizeBy: none
+		sourceColumn: YearMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	column YearMonthSort
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-date-col-yearmonthsort
+		summarizeBy: sum
+		sourceColumn: YearMonthSort
+
+		annotation SummarizationSetBy = Automatic
+
+	column Quarter
+		dataType: string
+		lineageTag: dim-date-col-quarter
+		summarizeBy: none
+		sourceColumn: Quarter
+
+		annotation SummarizationSetBy = Automatic
+
+	column WeekStart
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: dim-date-col-weekstart
+		summarizeBy: none
+		sourceColumn: WeekStart
+
+		variation Variation
+			isDefault
+			relationship: 29f165fa-6882-4a05-841c-38cea5770d77
+			defaultHierarchy: LocalDateTable_ecb2bab6-976a-4d36-9d48-bfa401ed98c1.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column WeekOfYear
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-date-col-weekofyear
+		summarizeBy: sum
+		sourceColumn: WeekOfYear
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsCurrentMonth
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: dim-date-col-iscurrentmonth
+		summarizeBy: none
+		sourceColumn: IsCurrentMonth
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimDate = m
+		mode: import
+		source =
+				let
+					StartDate = #date(2026, 3, 1),
+					EndDate = #date(2026, 9, 30),
+					Days = Duration.Days(EndDate - StartDate) + 1,
+					Dates = List.Dates(StartDate, Days, #duration(1,0,0,0)),
+					Table1 = Table.FromList(Dates, Splitter.SplitByNothing(), {"Date"}),
+					Table2 = Table.TransformColumnTypes(Table1, {{"Date", type date}}),
+					Table3 = Table.AddColumn(Table2, "Year", each Date.Year([Date]), Int64.Type),
+					Table4 = Table.AddColumn(Table3, "MonthNumber", each Date.Month([Date]), Int64.Type),
+					Table5 = Table.AddColumn(Table4, "MonthName", each Date.ToText([Date], "MMM"), type text),
+					Table6 = Table.AddColumn(Table5, "YearMonth", each Date.ToText([Date], "yyyy-MM"), type text),
+					Table7 = Table.AddColumn(Table6, "YearMonthSort", each [Year] * 100 + [MonthNumber], Int64.Type),
+					Table8 = Table.AddColumn(Table7, "Quarter", each "Q" & Text.From(Date.QuarterOfYear([Date])) & " " & Text.From([Year]), type text),
+					Table9 = Table.AddColumn(Table8, "WeekStart", each Date.StartOfWeek([Date], Day.Monday), type date),
+					Table10 = Table.AddColumn(Table9, "WeekOfYear", each Date.WeekOfYear([Date]), Int64.Type),
+					Table11 = Table.AddColumn(Table10, "IsCurrentMonth", each Date.Year([Date]) = 2026 and Date.Month([Date]) = 9, type logical)
+				in
+					Table11
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

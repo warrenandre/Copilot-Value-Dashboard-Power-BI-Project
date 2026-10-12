@@ -1,0 +1,59 @@
+table DimFeature
+	lineageTag: dim-feature-0001
+
+	column FeatureKey
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-feature-col-key
+		summarizeBy: none
+		sourceColumn: FeatureKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column FeatureName
+		dataType: string
+		lineageTag: dim-feature-col-name
+		summarizeBy: none
+		sourceColumn: FeatureName
+		sortByColumn: MaturityRank
+
+		annotation SummarizationSetBy = Automatic
+
+	column MaturityRank
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-feature-col-rank
+		summarizeBy: none
+		sourceColumn: MaturityRank
+
+		annotation SummarizationSetBy = Automatic
+
+	column FeatureCategory
+		dataType: string
+		lineageTag: dim-feature-col-cat
+		summarizeBy: none
+		sourceColumn: FeatureCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimFeature = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [FeatureKey = Int64.Type, FeatureName = text, MaturityRank = Int64.Type, FeatureCategory = text],
+						{
+							{1, "Completion",     1, "Inline"},
+							{2, "Chat",           2, "Assistive"},
+							{3, "Code Review",    3, "Quality"},
+							{4, "Agent Mode",     4, "Agentic"},
+							{5, "Coding Agent",   5, "Agentic"},
+							{6, "CLI",            6, "Extended"},
+							{7, "Copilot App",    7, "Extended"}
+						}
+					)
+				in
+					Source
+
+	annotation PBI_ResultType = Table
+

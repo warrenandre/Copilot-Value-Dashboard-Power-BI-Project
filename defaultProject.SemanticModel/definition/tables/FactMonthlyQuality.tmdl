@@ -1,0 +1,209 @@
+table FactMonthlyQuality
+	lineageTag: fact-mq-0001
+
+	column Date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: fact-mq-col-date
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TeamKey
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-team
+		summarizeBy: none
+		sourceColumn: TeamKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column EscapedDefects
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-defects
+		summarizeBy: sum
+		sourceColumn: EscapedDefects
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChangeFailures
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-cf
+		summarizeBy: sum
+		sourceColumn: ChangeFailures
+
+		annotation SummarizationSetBy = Automatic
+
+	column TotalChanges
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-tc
+		summarizeBy: sum
+		sourceColumn: TotalChanges
+
+		annotation SummarizationSetBy = Automatic
+
+	column BuildRuns
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-br
+		summarizeBy: sum
+		sourceColumn: BuildRuns
+
+		annotation SummarizationSetBy = Automatic
+
+	column BuildSuccesses
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-bs
+		summarizeBy: sum
+		sourceColumn: BuildSuccesses
+
+		annotation SummarizationSetBy = Automatic
+
+	column TestsRun
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-tr
+		summarizeBy: sum
+		sourceColumn: TestsRun
+
+		annotation SummarizationSetBy = Automatic
+
+	column TestsPassed
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-tp
+		summarizeBy: sum
+		sourceColumn: TestsPassed
+
+		annotation SummarizationSetBy = Automatic
+
+	column TestCoveragePct
+		dataType: double
+		formatString: 0.0%
+		lineageTag: fact-mq-col-cov
+		summarizeBy: average
+		sourceColumn: TestCoveragePct
+
+		annotation SummarizationSetBy = Automatic
+
+	column VulnerabilitiesIntroduced
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-vuln
+		summarizeBy: sum
+		sourceColumn: VulnerabilitiesIntroduced
+
+		annotation SummarizationSetBy = Automatic
+
+	column MTTRHours
+		dataType: double
+		formatString: #,0.0
+		lineageTag: fact-mq-col-mttr
+		summarizeBy: average
+		sourceColumn: MTTRHours
+
+		annotation SummarizationSetBy = Automatic
+
+	column FlowStateScore
+		dataType: double
+		formatString: 0.00
+		lineageTag: fact-mq-col-flow
+		summarizeBy: average
+		sourceColumn: FlowStateScore
+
+		annotation SummarizationSetBy = Automatic
+
+	column ToolingSatisfaction
+		dataType: double
+		formatString: 0.00
+		lineageTag: fact-mq-col-tool
+		summarizeBy: average
+		sourceColumn: ToolingSatisfaction
+
+		annotation SummarizationSetBy = Automatic
+
+	column CopilotSatisfaction
+		dataType: double
+		formatString: 0.00
+		lineageTag: fact-mq-col-copsat
+		summarizeBy: average
+		sourceColumn: CopilotSatisfaction
+
+		annotation SummarizationSetBy = Automatic
+
+	column TechDebtItems
+		dataType: int64
+		formatString: 0
+		lineageTag: fact-mq-col-debt
+		summarizeBy: sum
+		sourceColumn: TechDebtItems
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactMonthlyQuality = m
+		mode: import
+		source =
+				let
+					Months = {#date(2026, 3, 1), #date(2026, 4, 1), #date(2026, 5, 1), #date(2026, 6, 1), #date(2026, 7, 1), #date(2026, 8, 1), #date(2026, 9, 1)},
+					TeamCount = 8,
+					MonthCount = List.Count(Months),
+					TeamProfiles = {
+						{6,  0.09, 0.72, 3.9, 4.1},
+						{5,  0.08, 0.74, 4.0, 4.2},
+						{11, 0.14, 0.58, 3.4, 3.7},
+						{12, 0.15, 0.55, 3.3, 3.6},
+						{7,  0.10, 0.68, 3.7, 3.9},
+						{7,  0.11, 0.65, 3.6, 3.8},
+						{4,  0.06, 0.78, 4.2, 4.4},
+						{4,  0.07, 0.76, 4.1, 4.3}
+					},
+					TotalRows = MonthCount * TeamCount,
+					Base = List.Generate(() => 0, each _ < TotalRows, each _ + 1),
+					Rows = List.Transform(Base, (i) =>
+						let
+							teamIdx = Number.Mod(i, TeamCount),
+							monthIdx = Number.RoundDown(i / TeamCount),
+							dateVal = Months{monthIdx},
+							monthFactor = monthIdx / 6.0,
+							prof = TeamProfiles{teamIdx},
+							baseDef = prof{0},
+							baseCFR = prof{1},
+							baseCov = prof{2},
+							baseFlow = prof{3},
+							baseCS = prof{4},
+							defectImprovement = 1 - 0.15 * monthFactor,
+							defectMultiplier = if (teamIdx = 2 or teamIdx = 3) then 1 + 0.10 * monthFactor else defectImprovement,
+							escapedDefects = Number.Round(baseDef * defectMultiplier * (0.9 + Number.Mod(i * 11, 20) / 100.0), 0),
+							totalChanges = 40 + teamIdx * 5 + monthIdx * 3,
+							cfr = baseCFR * (if (teamIdx = 2 or teamIdx = 3) then 1.05 + 0.03 * monthFactor else 1 - 0.20 * monthFactor),
+							changeFailures = Number.Round(totalChanges * cfr, 0),
+							buildRuns = totalChanges * 12,
+							buildSuccesses = Number.Round(buildRuns * (0.92 + 0.03 * monthFactor), 0),
+							testsRun = totalChanges * 340 + Number.Mod(i * 13, 200),
+							testsPassed = Number.Round(testsRun * (0.94 + 0.02 * monthFactor), 0),
+							testCoveragePct = List.Min({0.92, baseCov + 0.04 * monthFactor + (Number.Mod(i * 7, 6) / 100.0)}),
+							vulnerabilitiesIntroduced = List.Max({0, Number.Round(escapedDefects * 0.3, 0) - Number.RoundDown(monthFactor * 2)}),
+							mttrHours = 48 * (1 - 0.20 * monthFactor) + Number.Mod(i * 5, 10),
+							flowStateScore = baseFlow + 0.20 * monthFactor + (Number.Mod(i * 3, 5) / 100.0),
+							toolingSatisfaction = 3.8 + 0.30 * monthFactor + (Number.Mod(i * 5, 8) / 100.0),
+							copilotSatisfaction = baseCS + 0.15 * monthFactor + (Number.Mod(i * 7, 8) / 100.0),
+							techDebtItems = 80 - Number.Round(monthFactor * 15, 0) + teamIdx * 3
+						in
+							[Date = dateVal, TeamKey = teamIdx + 1, EscapedDefects = escapedDefects, ChangeFailures = changeFailures, TotalChanges = totalChanges, BuildRuns = buildRuns, BuildSuccesses = buildSuccesses, TestsRun = testsRun, TestsPassed = testsPassed, TestCoveragePct = testCoveragePct, VulnerabilitiesIntroduced = vulnerabilitiesIntroduced, MTTRHours = mttrHours, FlowStateScore = flowStateScore, ToolingSatisfaction = toolingSatisfaction, CopilotSatisfaction = copilotSatisfaction, TechDebtItems = techDebtItems]
+					),
+					Result = Table.FromRecords(Rows),
+					Typed = Table.TransformColumnTypes(Result, {{"Date", type date}, {"TeamKey", Int64.Type}, {"EscapedDefects", Int64.Type}, {"ChangeFailures", Int64.Type}, {"TotalChanges", Int64.Type}, {"BuildRuns", Int64.Type}, {"BuildSuccesses", Int64.Type}, {"TestsRun", Int64.Type}, {"TestsPassed", Int64.Type}, {"TestCoveragePct", type number}, {"VulnerabilitiesIntroduced", Int64.Type}, {"MTTRHours", type number}, {"FlowStateScore", type number}, {"ToolingSatisfaction", type number}, {"CopilotSatisfaction", type number}, {"TechDebtItems", Int64.Type}})
+				in
+					Typed
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

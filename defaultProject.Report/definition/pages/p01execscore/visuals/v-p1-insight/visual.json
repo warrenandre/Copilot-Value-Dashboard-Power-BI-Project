@@ -1,0 +1,110 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "v-p1-insight",
+  "position": {
+    "x": 1260,
+    "y": 320,
+    "z": 12000,
+    "height": 200,
+    "width": 660,
+    "tabOrder": 12000
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Executive Insight",
+                    "textStyle": {
+                      "fontSize": "14pt",
+                      "fontWeight": "bold",
+                      "color": "#1F3A93"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " "
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "What improved: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#2E8B57"
+                    }
+                  },
+                  {
+                    "value": "Copilot adoption and sustained engagement grew strongest in Digital Channels and Data & AI, and PR cycle time trended down across those portfolios.",
+                    "textStyle": {
+                      "fontSize": "10pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " "
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Where value is at risk: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#D97706"
+                    }
+                  },
+                  {
+                    "value": "Payments teams show rising rework and change-failure rates — likely driven by test-coverage gaps and review pressure.",
+                    "textStyle": {
+                      "fontSize": "10pt"
+                    }
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": " "
+                  }
+                ]
+              },
+              {
+                "textRuns": [
+                  {
+                    "value": "Recommended action: ",
+                    "textStyle": {
+                      "fontWeight": "bold",
+                      "color": "#B91C1C"
+                    }
+                  },
+                  {
+                    "value": "Scale the Digital Channels enablement playbook to Payments, target Copilot Code Review adoption, and re-baseline the KPI targets for Q4.",
+                    "textStyle": {
+                      "fontSize": "10pt"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

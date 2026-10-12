@@ -1,0 +1,75 @@
+table DimBusinessUnit
+	lineageTag: dim-bu-0001
+
+	column TeamKey
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-bu-col-teamkey
+		summarizeBy: none
+		sourceColumn: TeamKey
+
+		annotation SummarizationSetBy = Automatic
+
+	column BusinessUnit
+		dataType: string
+		lineageTag: dim-bu-col-bu
+		summarizeBy: none
+		sourceColumn: BusinessUnit
+
+		annotation SummarizationSetBy = Automatic
+
+	column Portfolio
+		dataType: string
+		lineageTag: dim-bu-col-portfolio
+		summarizeBy: none
+		sourceColumn: Portfolio
+
+		annotation SummarizationSetBy = Automatic
+
+	column Team
+		dataType: string
+		lineageTag: dim-bu-col-team
+		summarizeBy: none
+		sourceColumn: Team
+
+		annotation SummarizationSetBy = Automatic
+
+	column CostCentre
+		dataType: string
+		lineageTag: dim-bu-col-cc
+		summarizeBy: none
+		sourceColumn: CostCentre
+
+		annotation SummarizationSetBy = Automatic
+
+	column EligibleDevelopers
+		dataType: int64
+		formatString: 0
+		lineageTag: dim-bu-col-eligibledevs
+		summarizeBy: sum
+		sourceColumn: EligibleDevelopers
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimBusinessUnit = m
+		mode: import
+		source =
+				let
+					Source = #table(
+						type table [TeamKey = Int64.Type, BusinessUnit = text, Portfolio = text, Team = text, CostCentre = text, EligibleDevelopers = Int64.Type],
+						{
+							{1, "Digital Channels",   "Consumer Digital", "Mobile Banking",       "CC-1010", 22},
+							{2, "Digital Channels",   "Consumer Digital", "Web Portal",           "CC-1011", 18},
+							{3, "Payments",           "Payments Core",    "Card Services",        "CC-2020", 20},
+							{4, "Payments",           "Payments Core",    "Real-Time Payments",   "CC-2021", 16},
+							{5, "Corporate Banking",  "CIB Platforms",    "Trade Finance",        "CC-3030", 14},
+							{6, "Corporate Banking",  "CIB Platforms",    "Treasury Systems",     "CC-3031", 12},
+							{7, "Data & AI",          "Enterprise Data",  "Data Platform",        "CC-4040", 18},
+							{8, "Data & AI",          "Enterprise Data",  "ML Engineering",       "CC-4041", 15}
+						}
+					)
+				in
+					Source
+
+	annotation PBI_ResultType = Table
+

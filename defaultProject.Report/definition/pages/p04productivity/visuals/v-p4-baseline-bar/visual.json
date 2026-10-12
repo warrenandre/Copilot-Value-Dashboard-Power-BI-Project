@@ -1,0 +1,107 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.14.0/schema.json",
+  "name": "v-p4-baseline-bar",
+  "position": {
+    "x": 0,
+    "y": 220,
+    "z": 7000,
+    "height": 420,
+    "width": 950,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimBusinessUnit"
+                    }
+                  },
+                  "Property": "Team"
+                }
+              },
+              "queryRef": "DimBusinessUnit.Team",
+              "nativeQueryRef": "DimBusinessUnit.Team",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Median PR Cycle Time (hrs)"
+                }
+              },
+              "queryRef": "_Measures.Median PR Cycle Time (hrs)",
+              "nativeQueryRef": "Median PR Cycle Time (hrs)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Avg Time to First Review (hrs)"
+                }
+              },
+              "queryRef": "_Measures.Avg Time to First Review (hrs)",
+              "nativeQueryRef": "Avg Time to First Review (hrs)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Avg Lead Time (hrs)"
+                }
+              },
+              "queryRef": "_Measures.Avg Lead Time (hrs)",
+              "nativeQueryRef": "Avg Lead Time (hrs)"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "visualTooltip": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "section": {
+              "expr": {
+                "Literal": {
+                  "Value": "'pt-median-pr-cycle-time-hrs'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

@@ -1,0 +1,57 @@
+relationship rel-date-fact-team
+	fromColumn: FactTeamDaily.Date
+	toColumn: DimDate.Date
+
+relationship rel-team-fact-team
+	fromColumn: FactTeamDaily.TeamKey
+	toColumn: DimBusinessUnit.TeamKey
+
+relationship rel-date-fact-feature
+	fromColumn: FactFeatureDaily.Date
+	toColumn: DimDate.Date
+
+relationship rel-team-fact-feature
+	fromColumn: FactFeatureDaily.TeamKey
+	toColumn: DimBusinessUnit.TeamKey
+
+relationship rel-feature-fact-feature
+	fromColumn: FactFeatureDaily.FeatureKey
+	toColumn: DimFeature.FeatureKey
+
+relationship rel-date-fact-quality
+	fromColumn: FactMonthlyQuality.Date
+	toColumn: DimDate.Date
+
+relationship rel-team-fact-quality
+	fromColumn: FactMonthlyQuality.TeamKey
+	toColumn: DimBusinessUnit.TeamKey
+
+relationship rel-dev-team
+	fromColumn: DimDeveloper.TeamKey
+	toColumn: DimBusinessUnit.TeamKey
+
+relationship 9e95ee44-fbfe-431c-bddc-11b4636d5f6f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimDate.Date
+	toColumn: LocalDateTable_8fcede65-f71a-4768-b283-db9014dc3195.Date
+
+relationship 29f165fa-6882-4a05-841c-38cea5770d77
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimDate.WeekStart
+	toColumn: LocalDateTable_ecb2bab6-976a-4d36-9d48-bfa401ed98c1.Date
+
+relationship 78bce561-c0f5-4f75-a415-b85af2d0aae2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimDeveloper.AssignedDate
+	toColumn: LocalDateTable_40998e37-3cf9-4cf2-8c70-5a622997769d.Date
+
+relationship 5670a503-b5b6-43d6-be2f-036e44bf8839
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimDeveloper.FirstUseDate
+	toColumn: LocalDateTable_d90e560a-3208-4864-a5d7-9e50a8ed58b5.Date
+
+relationship 408c90a4-7930-4dd4-965b-c9ac2eefa134
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimDeveloper.LastActiveDate
+	toColumn: LocalDateTable_a72f939e-d948-4aa6-ae32-e41a470e53dd.Date
+
